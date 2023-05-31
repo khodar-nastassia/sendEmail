@@ -1,32 +1,39 @@
 ﻿using OpenQA.Selenium;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace SendEmail.Pages
 {
     internal class MailPage:BasePage
     {
         IWebElement _writeLetterButton;
-        IWebElement _incomingLetterButton;
-        List<IWebElement> _actionButtons = new List<IWebElement>();
-
+        readonly string address = "vtorajaavrora@gmail.com";
 
         const string WRITE_LETTER_BUTTON_XPATH = "//div[@class='T-I T-I-KE L3']";
-        const string INCOMING_LETTER_BUTTON_XPATH = "//div[@class='aim ain']";
+        const string MAIL_TO_INPUT_XPATH = "//input[@aria-haspopup='listbox']";
+        const string SUBJECT_INPUT_XPATH = "//input[@name='subjectbox']";
+        const string MESSAGE_INPUT_XPATH = "//div[@role='textbox']";
+        const string SEND_LETTER_BUTTON_XPATH = "//tr[@class='btC']/child::td[1]";
+        const string LOGO_BUTTON_XPATH = "//a[@aria-label and @role='button']/child::img";
+        const string IFRAME_XPATH = "//iframe[@name='account']";
+        const string LOGOUT_BUTTON_XPATH = "//a[contains(@href,'Logout')]";
+        const string LETTER_XPATH = "//tr[@role='row']";
+        const string REPLAY_BUTTON_XPATH = "//span[contains(text(),'Reply') and @role='link']";
+        const string REPLAY_MESSAGE_INPUT_XPATH = "//div[@aria-label='Message Body']";
+        const string SEND_REPLAY_MESSAGE_BUTTON_XPATH = "//div[contains(text(),'Send') and @role='button']";
+
+
+
+
         public MailPage(IWebDriver driver) : base(driver)
         {
-
             Initialize();
         }
 
         public void Initialize()
         {
             _writeLetterButton = FindGoogleElement(WRITE_LETTER_BUTTON_XPATH);
-            _incomingLetterButton = FindGoogleElement(INCOMING_LETTER_BUTTON_XPATH);
         }
+
         public void Uninitialize()
         {
             _driver.Close();
@@ -36,38 +43,60 @@ namespace SendEmail.Pages
         {
             ClickElement(_writeLetterButton);
 
-            IWebElement mailToInput = FindGoogleElement("//input[@aria-haspopup='listbox']");
+            IWebElement mailToInput = FindGoogleElement(MAIL_TO_INPUT_XPATH);
+            mailToInput.SendKeys(address);
 
-            mailToInput.SendKeys("vtorajaavrora@gmail.com");
-
-            IWebElement mailSubjectInput = FindGoogleElement("//input[@name='subjectbox']");
+            IWebElement mailSubjectInput = FindGoogleElement(SUBJECT_INPUT_XPATH);
             mailSubjectInput.SendKeys("new");
 
-            IWebElement mailTextInput = FindGoogleElement("//div[@role='textbox']");
+            IWebElement mailTextInput = FindGoogleElement(MESSAGE_INPUT_XPATH);
             mailTextInput.SendKeys("Hi, Avrora!");
 
-            IWebElement sendButton = FindGoogleElement("//tr[@class='btC']/child::td[1]");
+            IWebElement sendButton = FindGoogleElement(SEND_LETTER_BUTTON_XPATH);
             ClickElement(sendButton);
         }
         public IndexPage Logout()
         {
-            IWebElement logoButton = FindGoogleElement("//a[@aria-label and @role='button']/child::img");
+            IWebElement logoButton = FindGoogleElement(LOGO_BUTTON_XPATH);
             ClickElement(logoButton);
 
-            IWebElement iframe = FindGoogleElement("//iframe[@name='account']");
+            IWebElement iframe = FindGoogleElement(IFRAME_XPATH);
             _driver.SwitchTo().Frame(iframe);
 
-
-            IWebElement logoutButton = FindGoogleElement("//a[contains(@href,'Logout')]");
+            IWebElement logoutButton = FindGoogleElement(LOGOUT_BUTTON_XPATH);
             ClickElement(logoutButton);
            
             IAlert alert = _driver.SwitchTo().Alert();
             alert.Accept();
             return new IndexPage(_driver);
         }
-        public void ReadLetter()
+        public bool CheckLetter()
         {
-            //div[@data-tooltip="Inbox"]
+            try
+            {
+                FindGoogleElement("//span[contains(text(),'new')]");
+                FindGoogleElement("//span[contains(text(),'Hi, Avrora!')]");
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public void ReplyLetter()
+        {
+            IWebElement letter = FindGoogleElement(LETTER_XPATH);
+            ClickElement(letter);
+
+            IWebElement replyButton = FindGoogleElement(REPLAY_BUTTON_XPATH);
+            ClickElement(replyButton);
+
+            IWebElement message = FindGoogleElement(REPLAY_MESSAGE_INPUT_XPATH);
+            message.SendKeys("Thanks");
+
+            IWebElement sendButton = FindGoogleElement(SEND_REPLAY_MESSAGE_BUTTON_XPATH);
+            ClickElement(sendButton);
         }
 
     }
